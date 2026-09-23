@@ -32,7 +32,7 @@ function AuthPage() {
     event.preventDefault(); setLoading(true); setError("");
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError || !data.user) { setError(authError?.message ?? "Unable to sign in."); setLoading(false); return; }
-    await supabase.from("profiles").upsert({ id: data.user.id, display_name: data.user.user_metadata?.display_name ?? "Rooftop Admin" });
+    await supabase.from("profiles").upsert({ id: data.user.id, display_name: data.user.user_metadata?.["display_name"] ?? "Rooftop Admin" });
     navigate({ to: "/dashboard", replace: true });
   }
 
