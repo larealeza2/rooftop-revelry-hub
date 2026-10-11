@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CalendarDays, ChevronRight, CircleUserRound, Clock3, ImagePlus, LayoutDashboard, LogOut, Menu as MenuIcon, Pencil, Plus, Search, Sparkles, Trash2, Users, UtensilsCrossed, X } from "lucide-react";
+import { CalendarDays, ChevronRight, CircleUserRound, Clock3, Globe, ImagePlus, LayoutDashboard, LogOut, Menu as MenuIcon, Pencil, Plus, Search, Sparkles, Trash2, Users, UtensilsCrossed, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ type Reservation = Tables<"reservations">;
 type MenuItem = Tables<"menu_items">;
 type Experience = Tables<"experiences">;
 type GalleryImage = Tables<"gallery_images">;
-type View = "overview" | "reservations" | "menu" | "experiences" | "gallery";
+type View = "overview" | "reservations" | "menu" | "experiences" | "gallery" | "website";
 const categories = ["Indian", "Continental", "East African", "Asian", "Fast Food", "Desserts"];
 const experienceImages = [mongolianImage, sunsetImage, privateImage];
 
@@ -59,7 +59,7 @@ function Dashboard() {
   useEffect(() => { load(); }, []);
   async function signOut() { await supabase.auth.signOut(); navigate({ to: "/auth", replace: true }); }
   const nav = [
-    ["overview", "Overview", LayoutDashboard], ["reservations", "Reservations", CalendarDays], ["menu", "Menu", UtensilsCrossed], ["experiences", "Experiences", Sparkles], ["gallery", "Gallery", ImagePlus],
+    ["overview", "Overview", LayoutDashboard], ["reservations", "Reservations", CalendarDays], ["menu", "Menu", UtensilsCrossed], ["experiences", "Experiences", Sparkles], ["gallery", "Gallery", ImagePlus], ["website", "Website", Globe],
   ] as const;
   return <div className="min-h-screen bg-background text-foreground">
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-xl lg:hidden">
@@ -84,6 +84,7 @@ function Content(p:{view:View;reservations:Reservation[];menu:MenuItem[];experie
   if(p.view==="menu") return <MenuManager items={p.menu} reload={p.reload}/>;
   if(p.view==="experiences") return <Experiences items={p.experiences} reload={p.reload}/>;
   if(p.view==="gallery") return <Gallery items={p.gallery} reload={p.reload}/>;
+  if(p.view==="website") return <Website/>;
   return <Overview reservations={p.reservations} experiences={p.experiences}/>;
 }
 function Overview({reservations,experiences}:{reservations:Reservation[];experiences:Experience[]}) {
@@ -110,6 +111,41 @@ function DishDialog({open,setOpen,item,reload}:{open:boolean;setOpen:(v:boolean)
 function Experiences({items,reload}:{items:Experience[];reload:()=>Promise<void>}) { const [edit,setEdit]=useState<Experience|null>(null); return <><Header eyebrow="Signature moments" title="Experiences" copy="Shape the stories guests come upstairs to remember."/><div className="grid gap-5 xl:grid-cols-3">{items.map((x,i)=><article key={x.id} className="group overflow-hidden rounded-lg border border-border bg-card warm-shadow"><div className="relative aspect-[3/2] overflow-hidden"><img src={x.image_url||experienceImages[i%3]} width={1200} height={800} loading="lazy" alt={x.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105"/><div className="absolute inset-0 bg-gradient-to-t from-card to-transparent"/></div><div className="p-6"><h2 className="text-3xl font-semibold">{x.title}</h2><p className="mt-3 min-h-16 text-sm leading-6 text-muted-foreground">{x.description}</p><Button variant="outline" className="mt-5" onClick={()=>setEdit(x)}><Pencil/>Edit experience</Button></div></article>)}</div><ExperienceDialog item={edit} close={()=>setEdit(null)} reload={reload}/></> }
 function ExperienceDialog({item,close,reload}:{item:Experience|null;close:()=>void;reload:()=>Promise<void>}) { async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!item)return;const f=new FormData(e.currentTarget);await supabase.from("experiences").update({title:String(f.get("title")),description:String(f.get("description")),image_url:String(f.get("image"))||null}).eq("id",item.id);close();await reload()} return <Dialog open={!!item} onOpenChange={v=>{if(!v)close()}}><DialogContent className="border-border bg-card"><DialogHeader><DialogTitle className="font-serif text-3xl">Edit experience</DialogTitle></DialogHeader>{item&&<form onSubmit={save} className="space-y-4"><Field name="title" label="Title" defaultValue={item.title}/><label className="block text-xs text-muted-foreground">Description<Textarea name="description" defaultValue={item.description} className="mt-2"/></label><Field name="image" label="Image URL" defaultValue={item.image_url??""}/><Button className="w-full">Save changes</Button></form>}</DialogContent></Dialog> }
 function Gallery({items,reload}:{items:GalleryImage[];reload:()=>Promise<void>}) { const [uploading,setUploading]=useState(false); async function upload(file:File){setUploading(true);const path=`gallery/${crypto.randomUUID()}-${file.name}`;const up=await supabase.storage.from("restaurant-media").upload(path,file);if(!up.error){const signed=await supabase.storage.from("restaurant-media").createSignedUrl(path,31536000);if(signed.data)await supabase.from("gallery_images").insert({image_url:signed.data.signedUrl,alt_text:file.name})}setUploading(false);await reload()} async function remove(id:string){await supabase.from("gallery_images").delete().eq("id",id);await reload()} return <><Header eyebrow="Visual archive" title="Gallery" copy="A considered collection of the atmosphere, plates and views." action={<label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"><ImagePlus className="size-4"/>{uploading?"Uploading…":"Upload image"}<input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={e=>{const f=e.target.files?.[0];if(f)upload(f)}}/></label>}/>{items.length?<div className="columns-1 gap-4 sm:columns-2 xl:columns-3">{items.map(i=><figure key={i.id} className="group relative mb-4 break-inside-avoid overflow-hidden rounded-lg border border-border"><img src={i.image_url} loading="lazy" alt={i.alt_text} className="w-full object-cover"/><Button size="icon" variant="destructive" aria-label="Delete image" onClick={()=>remove(i.id)} className="absolute right-3 top-3 opacity-0 transition group-hover:opacity-100"><Trash2/></Button></figure>)}</div>:<div className="grid min-h-80 place-items-center rounded-lg border border-dashed border-border bg-card/30"><div className="text-center"><ImagePlus className="mx-auto size-8 text-primary"/><h2 className="mt-4 text-2xl font-semibold">The gallery awaits</h2><p className="mt-2 text-sm text-muted-foreground">Upload the first restaurant image.</p></div></div>}</> }
+function Website() {
+  const base = typeof window !== "undefined" ? window.location.origin : "";
+  const [copied, setCopied] = useState("");
+  async function copy(key: string, text: string) {
+    try { await navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(""), 2200); } catch { /* clipboard blocked */ }
+  }
+  const links = [
+    ["book", "Booking page", `${base}/book`, "Guests fill this in; the request lands in your Reservations as pending."],
+    ["staff", "Staff login", `${base}/auth`, "Where your team signs in. Keep this one off the public site."],
+  ] as const;
+  const panels = [
+    ["menu", "Menu panel", `<script src="${base}/rooftop-embed.js" data-section="menu" defer></script>`],
+    ["experiences", "Experiences panel", `<script src="${base}/rooftop-embed.js" data-section="experiences" defer></script>`],
+    ["gallery", "Gallery panel", `<script src="${base}/rooftop-embed.js" data-section="gallery" defer></script>`],
+    ["book", "Booking form panel", `<script src="${base}/rooftop-embed.js" data-section="book" defer></script>`],
+  ] as const;
+  const feeds = ["menu", "experiences", "gallery", "reservations"].map((name) => [name, `${base}/api/public/${name}`] as const);
+  return <>
+    <Header eyebrow="Your website" title="Link it to your site" copy="Three ways to connect Rooftop to the website you already run: send guests here, show live panels on your pages, or read the same data yourself."/>
+    <section className="mb-9">
+      <h2 className="mb-4 text-2xl font-semibold">Links to put on your website</h2>
+      <div className="space-y-3">{links.map(([key,label,url,note])=><article key={key} className="rounded-lg border border-border bg-card/60 p-5 transition hover:border-primary/30"><div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-xl font-semibold">{label}</h3><p className="mt-1 text-xs text-muted-foreground">{note}</p></div><Button variant="outline" size="sm" onClick={()=>copy(key,url)}>{copied===key?"Copied":"Copy link"}</Button></div><code className="mt-3 block truncate rounded-md border border-border bg-background px-3 py-2 text-xs text-primary">{url}</code></article>)}</div>
+    </section>
+    <section className="mb-9">
+      <h2 className="mb-2 text-2xl font-semibold">Panels to paste into your pages</h2>
+      <p className="mb-4 max-w-2xl text-sm text-muted-foreground">Paste one line where the panel should appear on your website. It always shows what you have saved here, and grows to fit.</p>
+      <div className="space-y-3">{panels.map(([key,label,code])=><article key={key} className="rounded-lg border border-border bg-card/60 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-xl font-semibold">{label}</h3><Button variant="outline" size="sm" onClick={()=>copy(`panel-${key}`,code)}>{copied===`panel-${key}`?"Copied":"Copy code"}</Button></div><pre className="mt-3 overflow-x-auto rounded-md border border-border bg-background p-3 text-xs leading-5 text-primary">{code}</pre></article>)}</div>
+    </section>
+    <section>
+      <h2 className="mb-2 text-2xl font-semibold">Live data for a developer</h2>
+      <p className="mb-4 max-w-2xl text-sm text-muted-foreground">If your website is built by someone else, these give them the same information in plain text. The booking address takes a name, phone, date, time and party size.</p>
+      <div className="overflow-hidden rounded-lg border border-border bg-card/60">{feeds.map(([name,url])=><div key={name} className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4 last:border-0"><div><p className="text-sm font-semibold capitalize">{name}</p><code className="mt-1 block truncate text-xs text-muted-foreground">{url}</code></div><Button variant="ghost" size="sm" onClick={()=>copy(`feed-${name}`,url)}>{copied===`feed-${name}`?"Copied":"Copy"}</Button></div>)}</div>
+    </section>
+  </>;
+}
 function Field(p:{name:string;label:string;type?:string;defaultValue?:string|number}) { return <label className="block text-xs text-muted-foreground">{p.label}<Input required name={p.name} type={p.type} defaultValue={p.defaultValue} className="mt-2"/></label> }
 function Status({status}:{status:string}) { const s=status==="confirmed"?"bg-emerald-500/10 text-emerald-300":status==="cancelled"?"bg-destructive/10 text-destructive-foreground":"bg-primary/10 text-primary";return <span className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${s}`}>{status}</span> }
 function Empty({text}:{text:string}) { return <div className="p-12 text-center text-sm text-muted-foreground">{text}</div> }

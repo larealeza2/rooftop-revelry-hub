@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BookRouteImport } from './routes/book'
+import { Route as EmbedRouteImport } from './routes/embed'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiPublicExperiencesRouteImport } from './routes/api/public/experiences'
 import { Route as ApiPublicGalleryRouteImport } from './routes/api/public/gallery'
@@ -30,6 +32,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmbedRoute = EmbedRouteImport.update({
+  id: '/embed',
+  path: '/embed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -61,6 +73,8 @@ const ApiPublicReservationsRoute = ApiPublicReservationsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/book': typeof BookRoute
+  '/embed': typeof EmbedRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/experiences': typeof ApiPublicExperiencesRoute
   '/api/public/gallery': typeof ApiPublicGalleryRoute
@@ -70,6 +84,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/book': typeof BookRoute
+  '/embed': typeof EmbedRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/experiences': typeof ApiPublicExperiencesRoute
   '/api/public/gallery': typeof ApiPublicGalleryRoute
@@ -81,6 +97,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/book': typeof BookRoute
+  '/embed': typeof EmbedRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/experiences': typeof ApiPublicExperiencesRoute
   '/api/public/gallery': typeof ApiPublicGalleryRoute
@@ -92,6 +110,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/book'
+    | '/embed'
     | '/dashboard'
     | '/api/public/experiences'
     | '/api/public/gallery'
@@ -101,6 +121,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/book'
+    | '/embed'
     | '/dashboard'
     | '/api/public/experiences'
     | '/api/public/gallery'
@@ -111,6 +133,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/book'
+    | '/embed'
     | '/_authenticated/dashboard'
     | '/api/public/experiences'
     | '/api/public/gallery'
@@ -122,6 +146,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BookRoute: typeof BookRoute
+  EmbedRoute: typeof EmbedRoute
   ApiPublicExperiencesRoute: typeof ApiPublicExperiencesRoute
   ApiPublicGalleryRoute: typeof ApiPublicGalleryRoute
   ApiPublicMenuRoute: typeof ApiPublicMenuRoute
@@ -149,6 +175,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/embed': {
+      id: '/embed'
+      path: '/embed'
+      fullPath: '/embed'
+      preLoaderRoute: typeof EmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -204,6 +244,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BookRoute: BookRoute,
+  EmbedRoute: EmbedRoute,
   ApiPublicExperiencesRoute: ApiPublicExperiencesRoute,
   ApiPublicGalleryRoute: ApiPublicGalleryRoute,
   ApiPublicMenuRoute: ApiPublicMenuRoute,
