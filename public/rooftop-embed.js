@@ -55,6 +55,7 @@
 
   window.addEventListener("message", function (event) {
     if (origin && event.origin !== origin) return;
+    if (event.source !== frame.contentWindow) return;
     var data = event.data;
     if (!data || data.type !== "rooftop-embed:height") return;
     var height = Math.max(200, Math.min(4000, Number(data.height) || 0));

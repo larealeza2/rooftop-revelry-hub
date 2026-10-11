@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BookingForm } from "@/components/booking-form";
+import mongolianImage from "@/assets/experience-mongolian.jpg";
+import sunsetImage from "@/assets/experience-sunset.jpg";
+import privateImage from "@/assets/experience-private.jpg";
+
+const experienceImages = [mongolianImage, sunsetImage, privateImage];
 
 const SECTIONS = ["menu", "experiences", "gallery", "book"] as const;
 type Section = (typeof SECTIONS)[number];
@@ -132,9 +137,14 @@ function ExperiencePanel({ items, failed }: { items: Experience[]; failed: boole
       <Notice failed={failed} />
       {!failed && !items.length && <p className="text-xs text-muted-foreground">Experiences are being prepared.</p>}
       <div className="space-y-4">
-        {items.map((x) => (
+        {items.map((x, index) => (
           <article key={x.id} className="overflow-hidden rounded-lg border border-border bg-card">
-            {x.image_url && <img src={x.image_url} alt={x.title} loading="lazy" className="h-40 w-full object-cover" />}
+            <img
+              src={x.image_url || experienceImages[index % experienceImages.length]}
+              alt={x.title}
+              loading="lazy"
+              className="h-40 w-full object-cover"
+            />
             <div className="p-4">
               <h3 className="text-2xl font-semibold">{x.title}</h3>
               {x.description && <p className="mt-2 text-xs leading-5 text-muted-foreground">{x.description}</p>}
