@@ -117,7 +117,7 @@ export function BookingForm({ compact = false }: { compact?: boolean }) {
           "Request a table"
         )}
       </Button>
-      <p className="text-[10px] leading-4 text-muted-foreground">
+      <p className="text-xs leading-5 text-foreground/60">
         Requests are held for 24 hours while we call to confirm. For same-day tables, please call the restaurant.
       </p>
     </form>
