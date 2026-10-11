@@ -12,7 +12,7 @@ type GalleryImage = { id: string; image_url: string; alt_text: string };
 export const Route = createFileRoute("/embed")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { section: Section } => ({
-    section: SECTIONS.includes(search.section as Section) ? (search.section as Section) : "menu",
+    section: SECTIONS.includes(search["section"] as Section) ? (search["section"] as Section) : "menu",
   }),
   head: () => ({
     meta: [
