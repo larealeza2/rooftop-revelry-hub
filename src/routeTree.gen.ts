@@ -13,6 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as ApiPublicExperiencesRouteImport } from './routes/api/public/experiences'
+import { Route as ApiPublicGalleryRouteImport } from './routes/api/public/gallery'
+import { Route as ApiPublicMenuRouteImport } from './routes/api/public/menu'
+import { Route as ApiPublicReservationsRouteImport } from './routes/api/public/reservations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,16 +37,44 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicExperiencesRoute = ApiPublicExperiencesRouteImport.update({
+  id: '/api/public/experiences',
+  path: '/api/public/experiences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGalleryRoute = ApiPublicGalleryRouteImport.update({
+  id: '/api/public/gallery',
+  path: '/api/public/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMenuRoute = ApiPublicMenuRouteImport.update({
+  id: '/api/public/menu',
+  path: '/api/public/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicReservationsRoute = ApiPublicReservationsRouteImport.update({
+  id: '/api/public/reservations',
+  path: '/api/public/reservations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/experiences': typeof ApiPublicExperiencesRoute
+  '/api/public/gallery': typeof ApiPublicGalleryRoute
+  '/api/public/menu': typeof ApiPublicMenuRoute
+  '/api/public/reservations': typeof ApiPublicReservationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/experiences': typeof ApiPublicExperiencesRoute
+  '/api/public/gallery': typeof ApiPublicGalleryRoute
+  '/api/public/menu': typeof ApiPublicMenuRoute
+  '/api/public/reservations': typeof ApiPublicReservationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,20 +82,50 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/experiences': typeof ApiPublicExperiencesRoute
+  '/api/public/gallery': typeof ApiPublicGalleryRoute
+  '/api/public/menu': typeof ApiPublicMenuRoute
+  '/api/public/reservations': typeof ApiPublicReservationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/public/experiences'
+    | '/api/public/gallery'
+    | '/api/public/menu'
+    | '/api/public/reservations'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/public/experiences'
+    | '/api/public/gallery'
+    | '/api/public/menu'
+    | '/api/public/reservations'
   id:
-    '__root__' | '/' | '/_authenticated' | '/auth' | '/_authenticated/dashboard'
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/api/public/experiences'
+    | '/api/public/gallery'
+    | '/api/public/menu'
+    | '/api/public/reservations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicExperiencesRoute: typeof ApiPublicExperiencesRoute
+  ApiPublicGalleryRoute: typeof ApiPublicGalleryRoute
+  ApiPublicMenuRoute: typeof ApiPublicMenuRoute
+  ApiPublicReservationsRoute: typeof ApiPublicReservationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -96,6 +158,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/experiences': {
+      id: '/api/public/experiences'
+      path: '/api/public/experiences'
+      fullPath: '/api/public/experiences'
+      preLoaderRoute: typeof ApiPublicExperiencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/gallery': {
+      id: '/api/public/gallery'
+      path: '/api/public/gallery'
+      fullPath: '/api/public/gallery'
+      preLoaderRoute: typeof ApiPublicGalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/menu': {
+      id: '/api/public/menu'
+      path: '/api/public/menu'
+      fullPath: '/api/public/menu'
+      preLoaderRoute: typeof ApiPublicMenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reservations': {
+      id: '/api/public/reservations'
+      path: '/api/public/reservations'
+      fullPath: '/api/public/reservations'
+      preLoaderRoute: typeof ApiPublicReservationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -114,6 +204,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicExperiencesRoute: ApiPublicExperiencesRoute,
+  ApiPublicGalleryRoute: ApiPublicGalleryRoute,
+  ApiPublicMenuRoute: ApiPublicMenuRoute,
+  ApiPublicReservationsRoute: ApiPublicReservationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
