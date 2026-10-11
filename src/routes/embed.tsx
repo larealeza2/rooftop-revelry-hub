@@ -50,9 +50,12 @@ function Embed() {
 
   useEffect(() => {
     if (window.parent === window) return;
-    const origin = new URL(window.location.href).origin;
+    // The widget script passes the host page's origin in; without it (e.g. a
+    // local file) fall back to "*" — the message carries only a height number.
+    const parentOrigin = new URLSearchParams(window.location.search).get("parent");
+    const target = parentOrigin && /^https?:/i.test(parentOrigin) ? parentOrigin : "*";
     const report = () =>
-      window.parent.postMessage({ type: "rooftop-embed:height", height: document.body.scrollHeight }, origin);
+      window.parent.postMessage({ type: "rooftop-embed:height", height: document.body.scrollHeight }, target);
     report();
     const observer = new ResizeObserver(report);
     observer.observe(document.body);

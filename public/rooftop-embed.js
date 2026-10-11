@@ -19,7 +19,17 @@
   frame.setAttribute("scrolling", "no");
   frame.style.cssText =
     "display:block;width:100%;border:0;min-height:200px;height:" + startHeight + "px;max-width:100%;";
-  frame.src = base + "/embed?section=" + encodeURIComponent(section);
+  var parentOrigin = "";
+  try {
+    if (/^https?:$/.test(location.protocol)) parentOrigin = location.origin;
+  } catch (e) {
+    parentOrigin = "";
+  }
+  frame.src =
+    base +
+    "/embed?section=" +
+    encodeURIComponent(section) +
+    (parentOrigin ? "&parent=" + encodeURIComponent(parentOrigin) : "");
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", place);
